@@ -50,17 +50,19 @@ public class HotelBookingSystem {
       System.exit(1);
     }
 
-    System.out.println("=== DATABASE CONNECTION ===");
-    String user = console.readLine("Username: ");
-    char[] password = console.readPassword("Password: ");
+    System.out.println("+------------------------------------------+");
+    System.out.println("|        Database Authentication           |");
+    System.out.println("+------------------------------------------+");
+    String user = console.readLine("Enter username: ");
+    char[] password = console.readPassword("Enter password: ");
 
     Connection conn = null;
     try {
       conn = DriverManager.getConnection(DB_URL, user, new String(password));
-      System.out.println("Connected successfully.\n");
+      System.out.println("\n>> Connection established successfully\n");
     } catch (SQLException e) {
-      System.err.println("Connection failed!");
-      System.err.println(e.getMessage());
+      System.err.println("\n!! Connection failed - check credentials");
+      System.err.println("!! Error: " + e.getMessage());
       throw e;
     } finally {
       java.util.Arrays.fill(password, ' ');
@@ -76,7 +78,7 @@ public class HotelBookingSystem {
       printMenu();
 
       if (!scanner.hasNextInt()) {
-        System.out.println("Invalid input!");
+        System.out.println("!! Invalid input - please enter a number");
         scanner.next();
         continue;
       }
@@ -111,35 +113,35 @@ public class HotelBookingSystem {
             running = false;
             break;
           default:
-            System.out.println("Invalid choice!");
+            System.out.println("!! Option not recognized");
         }
 
         if (running && choice != 0) {
-          System.out.print("\nPress ENTER to continue...");
+          System.out.print("\n[Press ENTER to continue]");
           scanner.nextLine();
         }
       } catch (SQLException e) {
-        System.err.println("\nERROR: " + e.getMessage());
-        System.out.print("\nPress ENTER to continue...");
+        System.err.println("\n!! Database error occurred: " + e.getMessage());
+        System.out.print("\n[Press ENTER to continue]");
         scanner.nextLine();
       }
     }
   }
 
   private static void printMenu() {
-    System.out.println("\n========================================");
-    System.out.println("  HOTEL BOOKING MANAGEMENT SYSTEM");
-    System.out.println("========================================");
-    System.out.println("1. Search for rooms");
-    System.out.println("2. Register new guest");
-    System.out.println("3. Create booking (TRANSACTION)");
-    System.out.println("4. Cancel booking");
-    System.out.println("5. Delete guest");
-    System.out.println("6. Add room rating");
-    System.out.println("7. View system data");
-    System.out.println("0. Exit");
-    System.out.println("========================================");
-    System.out.print("Choice: ");
+    System.out.println("\n+------------------------------------------+");
+    System.out.println("|     Hotel Reservation System v1.0        |");
+    System.out.println("+------------------------------------------+");
+    System.out.println("| [1] Find available rooms                 |");
+    System.out.println("| [2] Add new guest                        |");
+    System.out.println("| [3] Make reservation (TRANSACTION)       |");
+    System.out.println("| [4] Cancel reservation                   |");
+    System.out.println("| [5] Remove guest                         |");
+    System.out.println("| [6] Submit room review                   |");
+    System.out.println("| [7] Browse database records              |");
+    System.out.println("| [0] Quit program                         |");
+    System.out.println("+------------------------------------------+");
+    System.out.print(">> Select option: ");
   }
 
   /**
@@ -147,16 +149,16 @@ public class HotelBookingSystem {
    * Uses 2 related tables: ROOM and RATES
    */
   private static void searchRooms(Connection conn) throws SQLException {
-    System.out.println("\n=== ROOM SEARCH ===");
-    System.out.println("1. Search by room number");
-    System.out.println("2. Search by price range");
-    System.out.print("Choice: ");
+    System.out.println("\n+--- Room Search Module ---+");
+    System.out.println("  [1] Search by room number");
+    System.out.println("  [2] Search by price range");
+    System.out.print(">> ");
 
     int searchType = scanner.nextInt();
     scanner.nextLine();
 
     if (searchType == 1) {
-      System.out.print("Enter room number (or part): ");
+      System.out.print("\nRoom number (full or partial): ");
       String roomNumber = scanner.nextLine();
 
       String sql = "SELECT r.room_id, r.room_number, r.price_per_night, " +
@@ -179,9 +181,9 @@ public class HotelBookingSystem {
       }
 
     } else if (searchType == 2) {
-      System.out.print("Minimum price: ");
+      System.out.print("\nMin price (EUR): ");
       double minPrice = scanner.nextDouble();
-      System.out.print("Maximum price: ");
+      System.out.print("Max price (EUR): ");
       double maxPrice = scanner.nextDouble();
       scanner.nextLine();
 
@@ -209,19 +211,19 @@ public class HotelBookingSystem {
 
   private static void printRoomSearchResults(ResultSet rs) throws SQLException {
     boolean found = false;
-    System.out.println("\n" + "-".repeat(100));
-    System.out.printf("%-5s %-12s %12s %12s %8s %8s %-30s%n",
-        "ID", "Room #", "Price/Night", "Available", "Ratings", "Avg Rate", "Description");
-    System.out.println("-".repeat(100));
+    System.out.println("\n" + "=".repeat(100));
+    System.out.printf("| %-3s | %-10s | %10s | %10s | %6s | %6s | %-28s |%n",
+        "ID", "Room No.", "Price/Ngt", "Available", "Rates", "AvgR", "Description");
+    System.out.println("=".repeat(100));
 
     while (rs.next()) {
       found = true;
       String description = rs.getString("description");
-      if (description != null && description.length() > 30) {
-        description = description.substring(0, 27) + "...";
+      if (description != null && description.length() > 28) {
+        description = description.substring(0, 25) + "...";
       }
 
-      System.out.printf("%-5d %-12s %12.2f %12d %8d %8.1f %-30s%n",
+      System.out.printf("| %-3d | %-10s | %10.2f | %10d | %6d | %6.1f | %-28s |%n",
           rs.getInt("room_id"),
           rs.getString("room_number"),
           rs.getDouble("price_per_night"),
@@ -231,9 +233,9 @@ public class HotelBookingSystem {
           description);
     }
 
-    System.out.println("-".repeat(100));
+    System.out.println("=".repeat(100));
     if (!found) {
-      System.out.println("No rooms found.");
+      System.out.println(">> No matching rooms found");
     }
   }
 
@@ -242,7 +244,7 @@ public class HotelBookingSystem {
    * Shows existing guest IDs with their names before insertion
    */
   private static void registerGuest(Connection conn) throws SQLException {
-    System.out.println("\n=== NEW GUEST REGISTRATION ===");
+    System.out.println("\n+--- Guest Registration Form ---+");
 
     // Show existing guests
     showAllGuests(conn);
@@ -253,11 +255,11 @@ public class HotelBookingSystem {
     System.out.print("Last name: ");
     String lastName = scanner.nextLine();
 
-    System.out.print("Email: ");
+    System.out.print("Email address: ");
     String email = scanner.nextLine();
 
     if (!email.matches(".+@.+\\..+")) {
-      System.out.println("Invalid email format!");
+      System.out.println("!! Email format is invalid");
       return;
     }
 
@@ -272,12 +274,12 @@ public class HotelBookingSystem {
 
       ResultSet keys = pstmt.getGeneratedKeys();
       if (keys.next()) {
-        System.out.println("\nSUCCESS! Guest registered with ID: " + keys.getInt(1));
+        System.out.println("\n>> Guest registered successfully! ID: " + keys.getInt(1));
       }
       keys.close();
     } catch (SQLException e) {
       if ("23505".equals(e.getSQLState())) {
-        System.out.println("Email already exists!");
+        System.out.println("!! Email is already registered in the system");
       } else {
         throw e;
       }
@@ -291,7 +293,9 @@ public class HotelBookingSystem {
    * Triggers automatically update total_price and decrease availability
    */
   private static void createBookingWithItems(Connection conn) throws SQLException {
-    System.out.println("\n=== NEW BOOKING CREATION (TRANSACTION) ===");
+    System.out.println("\n+------------------------------------------+");
+    System.out.println("|   New Reservation (TRANSACTION MODE)     |");
+    System.out.println("+------------------------------------------+");
 
     // Show guests
     showAllGuests(conn);
@@ -306,7 +310,7 @@ public class HotelBookingSystem {
       pstmt.setInt(1, guestId);
       ResultSet rs = pstmt.executeQuery();
       if (!rs.next()) {
-        System.out.println("Guest not found!");
+        System.out.println("!! Guest ID not found in database");
         rs.close();
         return;
       }
@@ -314,14 +318,14 @@ public class HotelBookingSystem {
     }
 
     // Address
-    System.out.println("\nDelivery address:");
+    System.out.println("\n-- Delivery Address Information --");
     System.out.print("Country: ");
     String country = scanner.nextLine();
     System.out.print("City: ");
     String city = scanner.nextLine();
     System.out.print("Postal code: ");
     String postalCode = scanner.nextLine();
-    System.out.print("Address line: ");
+    System.out.print("Street address: ");
     String addressLine = scanner.nextLine();
 
     // START TRANSACTION
@@ -343,29 +347,29 @@ public class HotelBookingSystem {
 
         ResultSet rs = pstmt.executeQuery();
         if (!rs.next()) {
-          throw new SQLException("Failed to create booking");
+          throw new SQLException("Booking creation failed");
         }
         bookingId = rs.getInt(1);
         rs.close();
       }
 
-      System.out.println("\nBooking created with ID: " + bookingId);
+      System.out.println("\n>> Reservation created with ID: " + bookingId);
 
       // 2. Add rooms
       boolean addingItems = true;
       int itemNumber = 1;
 
       while (addingItems) {
-        System.out.println("\n--- Adding room ---");
+        System.out.println("\n-- Adding Room to Reservation --");
         showAvailableRooms(conn);
 
-        System.out.print("\nRoom ID (0 - finish): ");
+        System.out.print("\nRoom ID (enter 0 to finish): ");
         int roomId = scanner.nextInt();
         scanner.nextLine();
 
         if (roomId == 0) {
           if (itemNumber == 1) {
-            throw new SQLException("Booking must have at least one room!");
+            throw new SQLException("Reservation must contain at least one room");
           }
           addingItems = false;
           continue;
@@ -382,7 +386,7 @@ public class HotelBookingSystem {
           ResultSet rs = pstmt.executeQuery();
 
           if (!rs.next()) {
-            System.out.println("Room not found!");
+            System.out.println("!! Room not found");
             rs.close();
             continue;
           }
@@ -393,16 +397,16 @@ public class HotelBookingSystem {
           rs.close();
         }
 
-        System.out.println("Room: " + roomNumber);
-        System.out.println("Price per night: " + price + " EUR");
-        System.out.println("Available: " + maxAvailability);
+        System.out.println("Selected room: " + roomNumber);
+        System.out.println("Rate per night: " + price + " EUR");
+        System.out.println("Available units: " + maxAvailability);
 
         System.out.print("Number of nights: ");
         int nights = scanner.nextInt();
         scanner.nextLine();
 
         if (nights <= 0 || nights > maxAvailability) {
-          System.out.println("Invalid number of nights!");
+          System.out.println("!! Invalid nights quantity");
           continue;
         }
 
@@ -420,19 +424,21 @@ public class HotelBookingSystem {
           pstmt.executeUpdate();
         }
 
-        System.out.println("Room added!");
+        System.out.println(">> Room added to reservation");
         itemNumber++;
       }
 
       // COMMIT
       conn.commit();
-      System.out.println("\n=== BOOKING SUCCESSFULLY CREATED ===");
-      System.out.println("Total price calculated automatically by trigger.");
+      System.out.println("\n+------------------------------------------+");
+      System.out.println("|   Reservation completed successfully!    |");
+      System.out.println("+------------------------------------------+");
+      System.out.println(">> Total price calculated by trigger");
 
     } catch (SQLException e) {
       // ROLLBACK
       conn.rollback();
-      System.out.println("\nBOOKING FAILED - All changes rolled back!");
+      System.out.println("\n!! Reservation failed - transaction rolled back");
       throw e;
     } finally {
       conn.setAutoCommit(autoCommit);
@@ -444,16 +450,16 @@ public class HotelBookingSystem {
    * Trigger automatically restores room availability
    */
   private static void cancelBooking(Connection conn) throws SQLException {
-    System.out.println("\n=== BOOKING CANCELLATION ===");
+    System.out.println("\n+--- Reservation Cancellation ---+");
 
     showActiveBookings(conn);
 
-    System.out.print("\nBooking ID to cancel (0 - abort): ");
+    System.out.print("\nReservation ID (0 to abort): ");
     int bookingId = scanner.nextInt();
     scanner.nextLine();
 
     if (bookingId == 0) {
-      System.out.println("Cancelled.");
+      System.out.println(">> Operation aborted");
       return;
     }
 
@@ -465,10 +471,10 @@ public class HotelBookingSystem {
       int rows = pstmt.executeUpdate();
 
       if (rows > 0) {
-        System.out.println("\nSUCCESS! Booking cancelled.");
-        System.out.println("Room availability restored automatically (trigger).");
+        System.out.println("\n>> Reservation cancelled successfully");
+        System.out.println(">> Room availability restored (via trigger)");
       } else {
-        System.out.println("Booking not found or already cancelled.");
+        System.out.println("!! Reservation not found or already cancelled");
       }
     }
   }
@@ -479,16 +485,16 @@ public class HotelBookingSystem {
    * Cascades to bookings and ratings
    */
   private static void deleteGuest(Connection conn) throws SQLException {
-    System.out.println("\n=== GUEST DELETION ===");
+    System.out.println("\n+--- Guest Removal ---+");
 
     showAllGuests(conn);
 
-    System.out.print("\nGuest ID to delete (0 - abort): ");
+    System.out.print("\nGuest ID to remove (0 to abort): ");
     int guestId = scanner.nextInt();
     scanner.nextLine();
 
     if (guestId == 0) {
-      System.out.println("Cancelled.");
+      System.out.println(">> Operation aborted");
       return;
     }
 
@@ -496,7 +502,7 @@ public class HotelBookingSystem {
     String confirm = scanner.nextLine();
 
     if (!confirm.equalsIgnoreCase("yes")) {
-      System.out.println("Cancelled.");
+      System.out.println(">> Operation aborted");
       return;
     }
 
@@ -507,10 +513,10 @@ public class HotelBookingSystem {
       int rows = pstmt.executeUpdate();
 
       if (rows > 0) {
-        System.out.println("\nSUCCESS! Guest deleted.");
-        System.out.println("Related bookings and ratings also deleted (CASCADE).");
+        System.out.println("\n>> Guest removed from database");
+        System.out.println(">> Associated reservations and reviews also deleted (CASCADE)");
       } else {
-        System.out.println("Guest not found.");
+        System.out.println("!! Guest not found");
       }
     }
   }
@@ -520,23 +526,23 @@ public class HotelBookingSystem {
    * Shows existing room IDs before insertion
    */
   private static void addRoomRating(Connection conn) throws SQLException {
-    System.out.println("\n=== ADD ROOM RATING ===");
+    System.out.println("\n+--- Submit Room Review ---+");
 
     showAllGuests(conn);
-    System.out.print("\nGuest ID: ");
+    System.out.print("\nYour guest ID: ");
     int guestId = scanner.nextInt();
     scanner.nextLine();
 
     showAllRooms(conn);
-    System.out.print("\nRoom ID: ");
+    System.out.print("\nRoom ID to review: ");
     int roomId = scanner.nextInt();
     scanner.nextLine();
 
-    System.out.print("Rating (1-5): ");
+    System.out.print("Rating (1-5 stars): ");
     int rating = scanner.nextInt();
     scanner.nextLine();
 
-    System.out.print("Review (optional): ");
+    System.out.print("Written review (optional, press ENTER to skip): ");
     String review = scanner.nextLine();
 
     String sql = "INSERT INTO RATES (guest_id, room_id, rating, review) VALUES (?, ?, ?, ?)";
@@ -548,10 +554,10 @@ public class HotelBookingSystem {
       pstmt.setString(4, review.isEmpty() ? null : review);
 
       pstmt.executeUpdate();
-      System.out.println("\nSUCCESS! Rating added.");
+      System.out.println("\n>> Review submitted successfully");
     } catch (SQLException e) {
       if ("23505".equals(e.getSQLState())) {
-        System.out.println("This guest has already rated this room!");
+        System.out.println("!! You have already reviewed this room");
       } else {
         throw e;
       }
@@ -565,18 +571,18 @@ public class HotelBookingSystem {
     try (Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(sql)) {
 
-      System.out.println("-".repeat(80));
-      System.out.printf("%-5s %-20s %-20s %-30s%n", "ID", "First Name", "Last Name", "Email");
-      System.out.println("-".repeat(80));
+      System.out.println("~".repeat(85));
+      System.out.printf("| %-4s | %-18s | %-18s | %-30s |%n", "ID", "First Name", "Last Name", "Email");
+      System.out.println("~".repeat(85));
 
       while (rs.next()) {
-        System.out.printf("%-5d %-20s %-20s %-30s%n",
+        System.out.printf("| %-4d | %-18s | %-18s | %-30s |%n",
             rs.getInt("guest_id"),
             rs.getString("first_name"),
             rs.getString("last_name"),
             rs.getString("email"));
       }
-      System.out.println("-".repeat(80));
+      System.out.println("~".repeat(85));
     }
   }
 
@@ -585,18 +591,18 @@ public class HotelBookingSystem {
     try (Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(sql)) {
 
-      System.out.println("-".repeat(70));
-      System.out.printf("%-5s %-12s %15s %15s%n", "ID", "Room #", "Price/Night", "Available");
-      System.out.println("-".repeat(70));
+      System.out.println("~".repeat(68));
+      System.out.printf("| %-4s | %-10s | %13s | %13s |%n", "ID", "Room No.", "Price/Night", "Available");
+      System.out.println("~".repeat(68));
 
       while (rs.next()) {
-        System.out.printf("%-5d %-12s %15.2f %15d%n",
+        System.out.printf("| %-4d | %-10s | %13.2f | %13d |%n",
             rs.getInt("room_id"),
             rs.getString("room_number"),
             rs.getDouble("price_per_night"),
             rs.getInt("availability"));
       }
-      System.out.println("-".repeat(70));
+      System.out.println("~".repeat(68));
     }
   }
 
@@ -606,18 +612,18 @@ public class HotelBookingSystem {
     try (Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(sql)) {
 
-      System.out.println("-".repeat(70));
-      System.out.printf("%-5s %-12s %15s %15s%n", "ID", "Room #", "Price/Night", "Available");
-      System.out.println("-".repeat(70));
+      System.out.println("~".repeat(68));
+      System.out.printf("| %-4s | %-10s | %13s | %13s |%n", "ID", "Room No.", "Price/Night", "Available");
+      System.out.println("~".repeat(68));
 
       while (rs.next()) {
-        System.out.printf("%-5d %-12s %15.2f %15d%n",
+        System.out.printf("| %-4d | %-10s | %13.2f | %13d |%n",
             rs.getInt("room_id"),
             rs.getString("room_number"),
             rs.getDouble("price_per_night"),
             rs.getInt("availability"));
       }
-      System.out.println("-".repeat(70));
+      System.out.println("~".repeat(68));
     }
   }
 
@@ -632,20 +638,20 @@ public class HotelBookingSystem {
     try (Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(sql)) {
 
-      System.out.println("-".repeat(90));
-      System.out.printf("%-5s %-25s %-25s %-15s %12s%n",
-          "ID", "Date", "Guest", "Status", "Total");
-      System.out.println("-".repeat(90));
+      System.out.println("~".repeat(93));
+      System.out.printf("| %-4s | %-23s | %-23s | %-13s | %10s |%n",
+          "ID", "Timestamp", "Guest Name", "Status", "Total");
+      System.out.println("~".repeat(93));
 
       while (rs.next()) {
-        System.out.printf("%-5d %-25s %-25s %-15s %12.2f%n",
+        System.out.printf("| %-4d | %-23s | %-23s | %-13s | %10.2f |%n",
             rs.getInt("booking_id"),
             rs.getTimestamp("booking_date"),
             rs.getString("first_name") + " " + rs.getString("last_name"),
             rs.getString("status"),
             rs.getDouble("total_price"));
       }
-      System.out.println("-".repeat(90));
+      System.out.println("~".repeat(93));
     }
   }
 
@@ -653,15 +659,15 @@ public class HotelBookingSystem {
     boolean back = false;
 
     while (!back) {
-      System.out.println("\n=== SYSTEM DATA VIEW ===");
-      System.out.println("1. All guests");
-      System.out.println("2. All rooms");
-      System.out.println("3. All bookings");
-      System.out.println("4. All ratings");
-      System.out.println("5. Guest statistics (view)");
-      System.out.println("6. Room statistics (view)");
-      System.out.println("0. Back");
-      System.out.print("Choice: ");
+      System.out.println("\n+--- Database Records Browser ---+");
+      System.out.println("  [1] Guest list");
+      System.out.println("  [2] Room catalog");
+      System.out.println("  [3] All reservations");
+      System.out.println("  [4] All reviews");
+      System.out.println("  [5] Guest statistics view");
+      System.out.println("  [6] Room statistics view");
+      System.out.println("  [0] Return to main menu");
+      System.out.print(">> ");
 
       int choice = scanner.nextInt();
       scanner.nextLine();
@@ -674,11 +680,11 @@ public class HotelBookingSystem {
         case 5 -> showGuestStatistics(conn);
         case 6 -> showRoomStatistics(conn);
         case 0 -> back = true;
-        default -> System.out.println("Invalid choice!");
+        default -> System.out.println("!! Invalid selection");
       }
 
       if (!back) {
-        System.out.print("\nPress ENTER...");
+        System.out.print("\n[Press ENTER]");
         scanner.nextLine();
       }
     }
@@ -694,20 +700,20 @@ public class HotelBookingSystem {
     try (Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(sql)) {
 
-      System.out.println("-".repeat(90));
-      System.out.printf("%-5s %-25s %-25s %-15s %12s%n",
-          "ID", "Date", "Guest", "Status", "Total");
-      System.out.println("-".repeat(90));
+      System.out.println("~".repeat(93));
+      System.out.printf("| %-4s | %-23s | %-23s | %-13s | %10s |%n",
+          "ID", "Timestamp", "Guest Name", "Status", "Total");
+      System.out.println("~".repeat(93));
 
       while (rs.next()) {
-        System.out.printf("%-5d %-25s %-25s %-15s %12.2f%n",
+        System.out.printf("| %-4d | %-23s | %-23s | %-13s | %10.2f |%n",
             rs.getInt("booking_id"),
             rs.getTimestamp("booking_date"),
             rs.getString("first_name") + " " + rs.getString("last_name"),
             rs.getString("status"),
             rs.getDouble("total_price"));
       }
-      System.out.println("-".repeat(90));
+      System.out.println("~".repeat(93));
     }
   }
 
@@ -722,23 +728,23 @@ public class HotelBookingSystem {
     try (Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(sql)) {
 
-      System.out.println("-".repeat(100));
-      System.out.printf("%-25s %-12s %-8s %-50s%n", "Guest", "Room #", "Rating", "Review");
-      System.out.println("-".repeat(100));
+      System.out.println("~".repeat(103));
+      System.out.printf("| %-23s | %-10s | %-6s | %-48s |%n", "Guest Name", "Room No.", "Stars", "Review Text");
+      System.out.println("~".repeat(103));
 
       while (rs.next()) {
         String review = rs.getString("review");
-        if (review != null && review.length() > 50) {
-          review = review.substring(0, 47) + "...";
+        if (review != null && review.length() > 48) {
+          review = review.substring(0, 45) + "...";
         }
 
-        System.out.printf("%-25s %-12s %-8d %-50s%n",
+        System.out.printf("| %-23s | %-10s | %-6d | %-48s |%n",
             rs.getString("first_name") + " " + rs.getString("last_name"),
             rs.getString("room_number"),
             rs.getInt("rating"),
             review == null ? "" : review);
       }
-      System.out.println("-".repeat(100));
+      System.out.println("~".repeat(103));
     }
   }
 
@@ -748,13 +754,13 @@ public class HotelBookingSystem {
     try (Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(sql)) {
 
-      System.out.println("-".repeat(100));
-      System.out.printf("%-5s %-20s %-20s %10s %12s %10s%n",
+      System.out.println("~".repeat(98));
+      System.out.printf("| %-4s | %-18s | %-18s | %9s | %11s | %8s |%n",
           "ID", "First Name", "Last Name", "Bookings", "Total Spent", "Reviews");
-      System.out.println("-".repeat(100));
+      System.out.println("~".repeat(98));
 
       while (rs.next()) {
-        System.out.printf("%-5d %-20s %-20s %10d %12.2f %10d%n",
+        System.out.printf("| %-4d | %-18s | %-18s | %9d | %11.2f | %8d |%n",
             rs.getInt("guest_id"),
             rs.getString("first_name"),
             rs.getString("last_name"),
@@ -762,7 +768,7 @@ public class HotelBookingSystem {
             rs.getDouble("total_spent"),
             rs.getInt("reviews_count"));
       }
-      System.out.println("-".repeat(100));
+      System.out.println("~".repeat(98));
     }
   }
 
@@ -772,13 +778,13 @@ public class HotelBookingSystem {
     try (Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery(sql)) {
 
-      System.out.println("-".repeat(100));
-      System.out.printf("%-5s %-12s %12s %12s %12s %12s %10s%n",
-          "ID", "Room #", "Times Booked", "Total Nights", "Revenue", "Avg Rating", "Reviews");
-      System.out.println("-".repeat(100));
+      System.out.println("~".repeat(102));
+      System.out.printf("| %-4s | %-10s | %11s | %11s | %11s | %10s | %8s |%n",
+          "ID", "Room No.", "Times Used", "Total Ngt", "Revenue", "Avg Rating", "Reviews");
+      System.out.println("~".repeat(102));
 
       while (rs.next()) {
-        System.out.printf("%-5d %-12s %12d %12d %12.2f %12.1f %10d%n",
+        System.out.printf("| %-4d | %-10s | %11d | %11d | %11.2f | %10.1f | %8d |%n",
             rs.getInt("room_id"),
             rs.getString("room_number"),
             rs.getInt("times_booked"),
@@ -787,7 +793,7 @@ public class HotelBookingSystem {
             rs.getDouble("average_rating"),
             rs.getInt("ratings_count"));
       }
-      System.out.println("-".repeat(100));
+      System.out.println("~".repeat(102));
     }
   }
 }
