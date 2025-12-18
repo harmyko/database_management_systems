@@ -2,17 +2,6 @@ import java.sql.*;
 import java.util.Scanner;
 import java.io.Console;
 
-/**
- * DBVS Lab 2.3
- * 
- * Hotel Booking Management System
- * 
- * Implements:
- * - Search: Search for rooms by room number or price range
- * - Insert: Register new guest, create new booking with items (TRANSACTION)
- * - Update: Cancel booking (restores room availability via trigger)
- * - Delete: Delete guest (cascades to bookings and ratings)
- */
 public class HotelBookingSystem {
   private static final Scanner scanner = new Scanner(System.in);
   private static final String DB_URL = "jdbc:postgresql://pgsql3.mif/studentu";
@@ -144,10 +133,6 @@ public class HotelBookingSystem {
     System.out.print(">> Select option: ");
   }
 
-  /**
-   * SEARCH - Search for rooms by room number or price range
-   * Uses 2 related tables: ROOM and RATES
-   */
   private static void searchRooms(Connection conn) throws SQLException {
     System.out.println("\n+--- Room Search Module ---+");
     System.out.println("  [1] Search by room number");
@@ -239,14 +224,9 @@ public class HotelBookingSystem {
     }
   }
 
-  /**
-   * INSERT - Register new guest
-   * Shows existing guest IDs with their names before insertion
-   */
   private static void registerGuest(Connection conn) throws SQLException {
     System.out.println("\n+--- Guest Registration Form ---+");
 
-    // Show existing guests
     showAllGuests(conn);
 
     System.out.print("\nFirst name: ");
@@ -286,25 +266,17 @@ public class HotelBookingSystem {
     }
   }
 
-  /**
-   * INSERT - Create booking with items (TRANSACTION)
-   * Uses multiple tables: GUEST, ROOM, BOOKING, BOOKING_ITEM
-   * Either everything succeeds or everything is rolled back
-   * Triggers automatically update total_price and decrease availability
-   */
   private static void createBookingWithItems(Connection conn) throws SQLException {
     System.out.println("\n+------------------------------------------+");
     System.out.println("|   New Reservation (TRANSACTION MODE)     |");
     System.out.println("+------------------------------------------+");
 
-    // Show guests
     showAllGuests(conn);
 
     System.out.print("\nGuest ID: ");
     int guestId = scanner.nextInt();
     scanner.nextLine();
 
-    // Check if guest exists
     String checkGuest = "SELECT guest_id FROM GUEST WHERE guest_id = ?";
     try (PreparedStatement pstmt = conn.prepareStatement(checkGuest)) {
       pstmt.setInt(1, guestId);
@@ -317,7 +289,6 @@ public class HotelBookingSystem {
       rs.close();
     }
 
-    // Address
     System.out.println("\n-- Delivery Address Information --");
     System.out.print("Country: ");
     String country = scanner.nextLine();
@@ -328,12 +299,10 @@ public class HotelBookingSystem {
     System.out.print("Street address: ");
     String addressLine = scanner.nextLine();
 
-    // START TRANSACTION
     boolean autoCommit = conn.getAutoCommit();
     conn.setAutoCommit(false);
 
     try {
-      // 1. Create booking
       String insertBooking = "INSERT INTO BOOKING (guest_id, status, country, city, postal_code, address_line) " +
           "VALUES (?, 'New', ?, ?, ?, ?) RETURNING booking_id";
 
@@ -355,7 +324,6 @@ public class HotelBookingSystem {
 
       System.out.println("\n>> Reservation created with ID: " + bookingId);
 
-      // 2. Add rooms
       boolean addingItems = true;
       int itemNumber = 1;
 
@@ -375,7 +343,6 @@ public class HotelBookingSystem {
           continue;
         }
 
-        // Get room info
         String getRoom = "SELECT room_number, price_per_night, availability FROM ROOM WHERE room_id = ?";
         double price;
         int maxAvailability;
@@ -410,7 +377,6 @@ public class HotelBookingSystem {
           continue;
         }
 
-        // Insert booking item (trigger will decrease availability)
         String insertItem = "INSERT INTO BOOKING_ITEM (booking_id, item_number, room_id, nights, price) " +
             "VALUES (?, ?, ?, ?, ?)";
 
@@ -428,7 +394,6 @@ public class HotelBookingSystem {
         itemNumber++;
       }
 
-      // COMMIT
       conn.commit();
       System.out.println("\n+------------------------------------------+");
       System.out.println("|   Reservation completed successfully!    |");
@@ -436,7 +401,6 @@ public class HotelBookingSystem {
       System.out.println(">> Total price calculated by trigger");
 
     } catch (SQLException e) {
-      // ROLLBACK
       conn.rollback();
       System.out.println("\n!! Reservation failed - transaction rolled back");
       throw e;
@@ -445,10 +409,6 @@ public class HotelBookingSystem {
     }
   }
 
-  /**
-   * UPDATE - Cancel booking
-   * Trigger automatically restores room availability
-   */
   private static void cancelBooking(Connection conn) throws SQLException {
     System.out.println("\n+--- Reservation Cancellation ---+");
 
@@ -479,11 +439,6 @@ public class HotelBookingSystem {
     }
   }
 
-  /**
-   * DELETE - Delete guest
-   * Shows all guests with IDs before deletion
-   * Cascades to bookings and ratings
-   */
   private static void deleteGuest(Connection conn) throws SQLException {
     System.out.println("\n+--- Guest Removal ---+");
 
@@ -521,10 +476,6 @@ public class HotelBookingSystem {
     }
   }
 
-  /**
-   * INSERT - Add room rating
-   * Shows existing room IDs before insertion
-   */
   private static void addRoomRating(Connection conn) throws SQLException {
     System.out.println("\n+--- Submit Room Review ---+");
 
@@ -563,8 +514,6 @@ public class HotelBookingSystem {
       }
     }
   }
-
-  // Helper methods
 
   private static void showAllGuests(Connection conn) throws SQLException {
     String sql = "SELECT guest_id, first_name, last_name, email FROM GUEST ORDER BY guest_id";

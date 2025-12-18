@@ -1,12 +1,8 @@
--- Guests
-
 INSERT INTO GUEST (first_name, last_name, email) VALUES
 ('John',    'Smith',      'john.smith@email.com'),
 ('Peter',   'Johnson',    'peter.johnson@gmail.com'),
 ('Anna',    'Williams',   'anna.williams@yahoo.com'),
 ('Michael', 'Brown',      'michael@mail.com');
-
--- Rooms
 
 INSERT INTO ROOM (room_number, price_per_night, availability, description) VALUES
 ('101', 89.99,  10, 'Standard Single Room with City View'),
@@ -20,8 +16,6 @@ INSERT INTO ROOM (room_number, price_per_night, availability, description) VALUE
 
 
 
--- Bookings
-
 INSERT INTO BOOKING (guest_id, status, country, city, postal_code, address_line) VALUES
 (1, 'CheckedOut', 'USA', 'New York',      '10001', 'Broadway 123'),
 (2, 'CheckedIn',  'USA', 'Los Angeles',   '90001', 'Sunset Blvd 456'),
@@ -30,8 +24,6 @@ INSERT INTO BOOKING (guest_id, status, country, city, postal_code, address_line)
 (4, 'New',        'USA', 'San Francisco', '94101', 'Market St 654');
 
 
-
--- Booking Items
 
 INSERT INTO BOOKING_ITEM (booking_id, item_number, room_id, nights, price) VALUES
 (1, 1, 1, 3, 89.99),
@@ -49,19 +41,14 @@ INSERT INTO BOOKING_ITEM (booking_id, item_number, room_id, nights, price) VALUE
 (5, 1, 1, 4, 89.99);
 
 
--- Ratings
-
--- John (guest_id = 1)
 INSERT INTO RATES (guest_id, room_id, rating, review) VALUES
 (1, 1, 5, 'Excellent room, very clean and comfortable.'),
 (1, 5, 4, 'Good value for money, but a bit small.');
 
--- Peter (guest_id = 2)
 INSERT INTO RATES (guest_id, room_id, rating, review) VALUES
 (2, 3, 5, 'Amazing suite, loved the living area.'),
 (2, 6, 3, 'Average room, could use some renovation.');
 
--- Anna (guest_id = 3)
 INSERT INTO RATES (guest_id, room_id, rating, review) VALUES
 (3, 4, 5, 'Best hotel experience ever! Presidential suite was fantastic.'),
 (3, 7, 4, 'Great penthouse, but a bit pricey.');

@@ -1,4 +1,3 @@
--- Update booking total price
 CREATE OR REPLACE FUNCTION update_total_price()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -30,7 +29,6 @@ FOR EACH ROW
 EXECUTE FUNCTION update_total_price();
 
 
--- Cannot book more rooms than available
 CREATE OR REPLACE FUNCTION decrease_room_availability()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -48,7 +46,6 @@ FOR EACH ROW
 EXECUTE FUNCTION decrease_room_availability();
 
 
--- When booking is cancelled, restore room availability
 CREATE OR REPLACE FUNCTION restore_room_availability()
 RETURNS TRIGGER AS $$
 BEGIN

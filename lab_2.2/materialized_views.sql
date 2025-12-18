@@ -9,6 +9,3 @@ FROM BOOKING b
 WHERE b.status <> 'Cancelled'
 GROUP BY DATE(b.booking_date)
 ORDER BY booking_day DESC;
-
--- Data refresh statement:
--- REFRESH MATERIALIZED VIEW daily_booking_statistics;

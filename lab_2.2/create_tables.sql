@@ -1,4 +1,3 @@
--- Guest
 CREATE TABLE GUEST (
     guest_id SERIAL PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
@@ -8,7 +7,6 @@ CREATE TABLE GUEST (
         CHECK (email LIKE '%@%.%')
 );
 
--- Room
 CREATE TABLE ROOM (
     room_id SERIAL PRIMARY KEY,
     room_number VARCHAR(10) NOT NULL,
@@ -21,7 +19,6 @@ CREATE TABLE ROOM (
     description TEXT
 );
 
--- Booking
 CREATE TABLE BOOKING (
    booking_id SERIAL PRIMARY KEY,
    guest_id INTEGER NOT NULL,
@@ -39,7 +36,6 @@ CREATE TABLE BOOKING (
         ON DELETE CASCADE 
 );
 
--- Booking_Item
 CREATE TABLE BOOKING_ITEM (
     booking_id INTEGER NOT NULL,
     item_number INTEGER NOT NULL,
@@ -56,7 +52,6 @@ CREATE TABLE BOOKING_ITEM (
         REFERENCES ROOM(room_id)
 );
 
--- Rates
 CREATE TABLE RATES (
     guest_id INTEGER NOT NULL,
     room_id INTEGER NOT NULL,
